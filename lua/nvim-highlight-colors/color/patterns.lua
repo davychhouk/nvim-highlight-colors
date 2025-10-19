@@ -15,6 +15,9 @@ M.tailwind_prefix = "!?%a+"
 
 M.ansi_regex = "\\033%[%d;%d%dm"
 
+
+M.xterm256_regex = "\\033%[[0-9;]*[34]8;5;%d?%d?%dm"
+
 ---Checks whether a color is short hex
 ---@param color string
 ---@usage is_short_hex_color("#FFF") => Returns true
@@ -119,6 +122,20 @@ end
 ---@return boolean
 function M.is_ansi_color(color)
 	return string.match(color, M.ansi_regex) ~= nil
+end
+
+---Checks whether a color is one of xterm's 256 colors. Accepts modifiers like bold (1)
+---underline (4) or blink (5).
+---@param color string
+---@usage is_xterm256_color("\\033[38;5;169m") => Returns true
+---@usage is_xterm256_color("\\033[1;6;38;5;75m") => Returns true
+---@return boolean
+function M.is_xterm256_color(color)
+	if (string.match(color, M.xterm256_regex) ~= nil) then
+		local color_nr = tonumber(string.match(color, "(%d?%d?%d)m"))
+		return (color_nr ~= nil and color_nr < 256)
+	end
+	return false
 end
 
 return M

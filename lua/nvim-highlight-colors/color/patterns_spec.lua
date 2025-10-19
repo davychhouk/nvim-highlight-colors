@@ -165,5 +165,20 @@ describe('Patterns', function()
 		assert.is_false(patterns.is_ansi_color("\\033[1:37m"))
 		assert.is_false(patterns.is_ansi_color("\\033[1;37n"))
 	end)
+
+	it('should return true if color is xterm256 color', function()
+		assert.is_true(patterns.is_xterm256_color("\\033[38;5;1m"))
+		assert.is_true(patterns.is_xterm256_color("\\033[48;5;136m"))
+		assert.is_true(patterns.is_xterm256_color("\\033[1;38;5;10m"))
+		assert.is_true(patterns.is_xterm256_color("\\033[2;3;38;5;51m"))
+	end)
+
+	it('should return false if color is not xterm256 color', function()
+		assert.is_false(patterns.is_xterm256_color("\\034[38;5;1m"))      -- Not an escape
+		assert.is_false(patterns.is_xterm256_color("\\033[38;136m"))      -- Missing '5;'
+		assert.is_false(patterns.is_xterm256_color("\\033[38;5;356m"))    -- Out of range
+		assert.is_false(patterns.is_xterm256_color("\\033[1;5;10m"))      -- Missing '38;'
+		assert.is_false(patterns.is_xterm256_color("\\033[2;3;38;5;51"))  -- Missing 'm'
+	end)
 end)
 

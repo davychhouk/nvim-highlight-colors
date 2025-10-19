@@ -161,6 +161,9 @@ require("nvim-highlight-colors").setup {
 	---Highlight ansi colors, e.g '\033[0;34m'
 	enable_ansi = true,
 
+	---Highlight xterm 256 colors, e.g '\033[38;5;118m'
+	enable_xterm256 = true,
+
   -- Highlight hsl colors without function, e.g. '--foreground: 0 69% 69%;'
   enable_hsl_without_function = true,
 

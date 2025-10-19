@@ -4,6 +4,7 @@ local tailwind_named_colors = require("nvim-highlight-colors.named-colors.tailwi
 local converters = require("nvim-highlight-colors.color.converters")
 local patterns = require("nvim-highlight-colors.color.patterns")
 local ansi_named_colors = require("nvim-highlight-colors.named-colors.ansi")
+local xterm256_named_colors = require("nvim-highlight-colors.named-colors.xterm256")
 
 local M = {}
 
@@ -52,6 +53,10 @@ function M.get_color_value(color, row_offset, custom_colors, enable_short_hex )
 
 	if patterns.is_ansi_color(color) then
 		return M.get_ansi_named_color_value(color)
+	end
+
+	if patterns.is_xterm256_color(color) then
+		return M.get_xterm256_named_color_value(color)
 	end
 
 	if (patterns.is_named_color({M.get_tailwind_named_color_pattern()}, color)) then
@@ -163,6 +168,14 @@ function M.get_ansi_named_color_value(color)
 		return tostring(ansi_named_colors[color_code])
 	end
 	return nil
+end
+
+---Returns the hex value of an xterm256 color
+---@param color string
+---@usage get_xterm256_named_color_value("\\033[38;5;190m") => Returns '#DFFF00'
+---@return string|nil
+function M.get_xterm256_named_color_value(color)
+	return xterm256_named_colors[tonumber(string.match(color, "(%d?%d?%d)m"))]
 end
 
 ---Returns a pattern for tailwind colors
