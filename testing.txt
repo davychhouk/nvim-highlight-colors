@@ -100,6 +100,23 @@
 +--------------------+--------------------+------------+
 
 
++----------------------+-----------------------------+------------+
+| Color name           |  xterm TrueColor SGR        |  Hex code  |
++----------------------+-----------------------------+------------+
+| sugar-free juice     |  \033[38;2;253;200;15m      |  #FDC80F   |
+| juicy juice          |  \033[38;2;252;160;8m       |  #FCA008   |
+| Melon Juice          |  \033[38;2;255;86;51m       |  #FF5633   |
+| Hot Juice            |  \033[38;2;232;23;61m       |  #E8173D   |
+| Apple Juice Ceremony |  \033[1;38;2;35;17;41m      |  #231129   |
+| Caribbean sea        |  \033[6;38;2;6;197;164m     |  #06C5A4   |
+| never used green     |  \033[2;3;38;2;81;155;120m  |  #519B78   |
++----------------------+-----------------------------+------------+
+-- Names and values from:
+-- https://www.colourlovers.com/palette/4971490/worth_the_squeeze
+-- https://www.colourlovers.com/color/06C5A4/Caribbean_sea
+-- https://www.colourlovers.com/color/519B78/never_used_green
+
+
 +------------------------------------------------------------------------+
 |                          Scrolling Speed Test                          |
 +------------------------------------------------------------------------+

@@ -15,8 +15,8 @@ M.tailwind_prefix = "!?%a+"
 
 M.ansi_regex = "\\033%[%d;%d%dm"
 
-
 M.xterm256_regex = "\\033%[[0-9;]*[34]8;5;%d?%d?%dm"
+M.xtermTrueColor_regex = "\\033%[[0-9;]*[34]8;2;%d?%d?%d;%d?%d?%d;%d?%d?%dm"
 
 ---Checks whether a color is short hex
 ---@param color string
@@ -124,8 +124,8 @@ function M.is_ansi_color(color)
 	return string.match(color, M.ansi_regex) ~= nil
 end
 
----Checks whether a color is one of xterm's 256 colors. Accepts modifiers like bold (1)
----underline (4) or blink (5).
+---Checks whether a color is one of xterm's 256 colors (8bit). Accepts modifiers
+---like bold (1) underline (4) or blink (5).
 ---@param color string
 ---@usage is_xterm256_color("\\033[38;5;169m") => Returns true
 ---@usage is_xterm256_color("\\033[1;6;38;5;75m") => Returns true
@@ -134,6 +134,23 @@ function M.is_xterm256_color(color)
 	if (string.match(color, M.xterm256_regex) ~= nil) then
 		local color_nr = tonumber(string.match(color, "(%d?%d?%d)m"))
 		return (color_nr ~= nil and color_nr < 256)
+	end
+	return false
+end
+
+---Checks whether a color is one of xterm's True Color (24bit) colors. Accepts
+---modifiers like bold (1) underline (4) or blink (5).
+---@param color string
+---@usage is_xtermTrueColor_color("\\033[38;2;0;115;150m") => Returns true
+---@usage is_xtermTrueColor_color("\\033[1;6;38;2;237;139;0m") => Returns true
+---@return boolean
+function M.is_xtermTrueColor_color(color)
+	if (string.match(color, M.xtermTrueColor_regex) ~= nil) then
+		local _, _, r, g, b = string.find(color, "(%d?%d?%d);(%d?%d?%d);(%d?%d?%d)m")
+		r = tonumber(r)
+		g = tonumber(g)
+		b = tonumber(b)
+		return (b ~= nil and r < 256 and g < 256 and b < 256)
 	end
 	return false
 end

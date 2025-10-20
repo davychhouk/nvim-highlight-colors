@@ -55,8 +55,15 @@ function M.get_color_value(color, row_offset, custom_colors, enable_short_hex )
 		return M.get_ansi_named_color_value(color)
 	end
 
-	if patterns.is_xterm256_color(color) then
+	if (patterns.is_xterm256_color(color)) then
 		return M.get_xterm256_named_color_value(color)
+	end
+
+	if (patterns.is_xtermTrueColor_color(color)) then
+		local rgb_table = M.get_xtermTrueColor_rgb_values(color)
+		if rgb_table ~= nil then
+			return converters.rgb_to_hex(rgb_table[1], rgb_table[2], rgb_table[3])
+		end
 	end
 
 	if (patterns.is_named_color({M.get_tailwind_named_color_pattern()}, color)) then
@@ -176,6 +183,20 @@ end
 ---@return string|nil
 function M.get_xterm256_named_color_value(color)
 	return xterm256_named_colors[tonumber(string.match(color, "(%d?%d?%d)m"))]
+end
+
+---Returns the RGB components of an xterm True Color SRG
+---@param color string
+---@usage get_xtermTrueColor_rgb_values("\\033[38;2;223;255;0m") => Returns { '223', '255', '0' }
+---@return string[]|nil
+function M.get_xtermTrueColor_rgb_values(color)
+	if (string.match(color, patterns.xtermTrueColor_regex) ~= nil) then
+		local _, _, r, g, b = string.find(color, "(%d?%d?%d);(%d?%d?%d);(%d?%d?%d)m")
+		if b ~= nil then
+			return { r, g, b }
+		end
+	end
+	return nil
 end
 
 ---Returns a pattern for tailwind colors

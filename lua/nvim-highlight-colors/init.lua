@@ -25,6 +25,7 @@ local options = {
 	enable_tailwind = false,
 	enable_ansi = false,
 	enable_xterm256 = false,
+	enable_xtermTrueColor = false,
 	custom_colors = nil,
 	virtual_symbol = "■",
 	virtual_symbol_prefix = "",
@@ -96,6 +97,10 @@ function M.highlight_colors(min_row, max_row, active_buffer_id)
 		XTERM_256 = {
 			is_enabled = options.enable_xterm256,
 			patterns = { color_patterns.xterm256_regex },
+		},
+		XTERM_TRUECOLOR = {
+			is_enabled = options.enable_xtermTrueColor,
+			patterns = { color_patterns.xtermTrueColor_regex },
 		},
 	}
 
