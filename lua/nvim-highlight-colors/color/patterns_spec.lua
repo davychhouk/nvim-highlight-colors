@@ -165,5 +165,36 @@ describe('Patterns', function()
 		assert.is_false(patterns.is_ansi_color("\\033[1:37m"))
 		assert.is_false(patterns.is_ansi_color("\\033[1;37n"))
 	end)
+
+	it('should return true if color is xterm256 color', function()
+		assert.is_true(patterns.is_xterm256_color("\\033[38;5;1m"))
+		assert.is_true(patterns.is_xterm256_color("\\033[48;5;136m"))
+		assert.is_true(patterns.is_xterm256_color("\\033[1;38;5;10m"))
+		assert.is_true(patterns.is_xterm256_color("\\033[2;3;38;5;51m"))
+	end)
+
+	it('should return false if color is not xterm256 color', function()
+		assert.is_false(patterns.is_xterm256_color("\\034[38;5;1m"))      -- Not an escape
+		assert.is_false(patterns.is_xterm256_color("\\033[38;136m"))      -- Missing '5;'
+		assert.is_false(patterns.is_xterm256_color("\\033[38;5;356m"))    -- Out of range
+		assert.is_false(patterns.is_xterm256_color("\\033[1;5;10m"))      -- Missing '38;'
+		assert.is_false(patterns.is_xterm256_color("\\033[2;3;38;5;51"))  -- Missing 'm'
+	end)
+
+	it('should return true if color is xterm True Color', function()
+		assert.is_true(patterns.is_xtermTrueColor_color("\\033[38;2;105;210;231m"))
+		assert.is_true(patterns.is_xtermTrueColor_color("\\033[48;2;167;219;216m"))
+		assert.is_true(patterns.is_xtermTrueColor_color("\\033[1;38;2;224;228;204m"))
+		assert.is_true(patterns.is_xtermTrueColor_color("\\033[2;3;38;2;243;134;48m"))
+		assert.is_true(patterns.is_xtermTrueColor_color("\\033[38;2;250;105;0m"))
+	end)
+
+	it('should return false if color is not xterm True Color', function()
+		assert.is_false(patterns.is_xtermTrueColor_color("\\034[38;2;255;255;255m")) -- Not an escape
+		assert.is_false(patterns.is_xtermTrueColor_color("\\033[38;136;78;240m"))    -- Missing '2;'
+		assert.is_false(patterns.is_xtermTrueColor_color("\\033[38;2;356;0;0m"))     -- Out of range
+		assert.is_false(patterns.is_xtermTrueColor_color("\\033[1;2;128;128;128m"))  -- Missing '38;'
+		assert.is_false(patterns.is_xtermTrueColor_color("\\033[2;3;38;2;0;0;0"))    -- Missing 'm'
+	end)
 end)
 
