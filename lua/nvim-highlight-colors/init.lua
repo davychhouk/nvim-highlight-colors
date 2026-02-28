@@ -1,5 +1,4 @@
 local utils = require("nvim-highlight-colors.utils")
-local table_utils = require("nvim-highlight-colors.table_utils")
 local buffer_utils = require("nvim-highlight-colors.buffer_utils")
 local colors = require("nvim-highlight-colors.color.utils")
 local color_patterns = require("nvim-highlight-colors.color.patterns")
@@ -8,6 +7,7 @@ local ns_id = vim.api.nvim_create_namespace("nvim-highlight-colors")
 if vim.g.loaded_nvim_highlight_colors ~= nil then
 	return {}
 end
+
 vim.g.loaded_nvim_highlight_colors = 1
 
 local render_options = utils.render_options
@@ -18,7 +18,7 @@ local options = {
 	enable_hex = true,
 	enable_rgb = true,
 	enable_hsl = true,
-  enable_hsl_without_function = true,
+	enable_hsl_without_function = true,
 	enable_var_usage = true,
 	enable_named_colors = true,
 	enable_short_hex = true,
@@ -33,7 +33,8 @@ local options = {
 	virtual_symbol_position = "inline",
 	exclude_filetypes = {},
 	exclude_buftypes = {},
-	exclude_buffer = function(bufnr) end
+	---@diagnostic disable-next-line: unused-local
+	exclude_buffer = function(bufnr) end,
 }
 
 local M = {}
@@ -42,20 +43,22 @@ local M = {}
 ---@param user_options table Check 'options' variable above
 function M.setup(user_options)
 	is_loaded = true
-	if (user_options ~= nil and user_options ~= {}) then
+	if user_options ~= nil and user_options ~= {} then
 		for key, _ in pairs(user_options) do
 			if user_options[key] ~= nil then
 				options[key] = user_options[key]
 			end
 		end
 	end
-	vim.tbl_map(function(bufnr) M.refresh_highlights(bufnr, true) end, vim.api.nvim_list_bufs())
+	vim.tbl_map(function(bufnr)
+		M.refresh_highlights(bufnr, true)
+	end, vim.api.nvim_list_bufs())
 end
 
 ---Highlight visible colors within specified buffer id
----@param min_row number 
----@param max_row number 
----@param active_buffer_id number 
+---@param min_row number
+---@param max_row number
+---@param active_buffer_id number
 function M.highlight_colors(min_row, max_row, active_buffer_id)
 	local patterns = {}
 
@@ -64,7 +67,7 @@ function M.highlight_colors(min_row, max_row, active_buffer_id)
 			is_enabled = options.enable_hex,
 			patterns = {
 				color_patterns.hex_regex,
-				color_patterns.hex_0x_regex
+				color_patterns.hex_0x_regex,
 			},
 		},
 		RGB = {
@@ -75,21 +78,21 @@ function M.highlight_colors(min_row, max_row, active_buffer_id)
 			is_enabled = options.enable_hsl,
 			patterns = { color_patterns.hsl_regex },
 		},
-    HSL_WITHOUT_FUNC = {
-      is_enabled = options.enable_hsl_without_function,
-      patterns = { color_patterns.hsl_without_func_regex }
-    },
+		HSL_WITHOUT_FUNC = {
+			is_enabled = options.enable_hsl_without_function,
+			patterns = { color_patterns.hsl_without_func_regex },
+		},
 		VAR_USAGE = {
 			is_enabled = options.enable_var_usage,
-			patterns = { color_patterns.var_usage_regex }
+			patterns = { color_patterns.var_usage_regex },
 		},
 		NAMED_COLORS = {
 			is_enabled = options.enable_named_colors,
-			patterns = { colors.get_css_named_color_pattern() }
+			patterns = { colors.get_css_named_color_pattern() },
 		},
 		TAILWIND = {
 			is_enabled = options.enable_tailwind and #utils.get_lsp_clients(active_buffer_id, "tailwindcss") == 0,
-			patterns = { colors.get_tailwind_named_color_pattern() }
+			patterns = { colors.get_tailwind_named_color_pattern() },
 		},
 		ANSI = {
 			is_enabled = options.enable_ansi,
@@ -113,32 +116,20 @@ function M.highlight_colors(min_row, max_row, active_buffer_id)
 		end
 	end
 
-	if (options.custom_colors ~= nil) then
+	if options.custom_colors ~= nil then
 		for _, custom_color in pairs(options.custom_colors) do
 			table.insert(patterns, custom_color.label)
 		end
 	end
 
-	local positions = buffer_utils.get_positions_by_regex(
-		patterns,
-		min_row - 1,
-		max_row,
-		active_buffer_id,
-		row_offset
-	)
+	local positions = buffer_utils.get_positions_by_regex(patterns, min_row - 1, max_row, active_buffer_id, row_offset)
 
 	for _, data in pairs(positions) do
-		utils.create_highlight(
-			active_buffer_id,
-			ns_id,
-			data,
-			options
-		)
+		utils.create_highlight(active_buffer_id, ns_id, data, options)
 	end
 
 	utils.highlight_with_lsp(active_buffer_id, ns_id, positions, options)
 end
-
 
 ---Refreshes current highlights within the specified buffer
 ---@param active_buffer_id number
@@ -146,14 +137,15 @@ end
 function M.refresh_highlights(active_buffer_id, should_clear_highlights)
 	local buffer_id = active_buffer_id ~= nil and active_buffer_id or 0
 
- 	if not vim.api.nvim_buf_is_valid(active_buffer_id)
- 		or vim.bo[buffer_id].buftype == "terminal"
- 		or vim.tbl_contains(options.exclude_filetypes, vim.bo[buffer_id].filetype)
- 		or vim.tbl_contains(options.exclude_buftypes, vim.bo[buffer_id].buftype)
- 		or (options.exclude_buffer and options.exclude_buffer(buffer_id))
-  	then
- 		return
- 	end
+	if
+		not vim.api.nvim_buf_is_valid(active_buffer_id)
+		or vim.bo[buffer_id].buftype == "terminal"
+		or vim.tbl_contains(options.exclude_filetypes, vim.bo[buffer_id].filetype)
+		or vim.tbl_contains(options.exclude_buftypes, vim.bo[buffer_id].buftype)
+		or (options.exclude_buffer and options.exclude_buffer(buffer_id))
+	then
+		return
+	end
 
 	if should_clear_highlights then
 		M.clear_highlights(buffer_id)
@@ -167,23 +159,21 @@ end
 ---Deletes highlights for the specified buffer
 ---@param active_buffer_id number
 function M.clear_highlights(active_buffer_id)
-	pcall(
-		function ()
-			local buffer_id = active_buffer_id ~= nil and active_buffer_id or 0
+	pcall(function()
+		local buffer_id = active_buffer_id ~= nil and active_buffer_id or 0
 
-			vim.api.nvim_buf_clear_namespace(buffer_id, ns_id, 0, utils.get_last_row_index())
-			local virtual_texts = vim.api.nvim_buf_get_extmarks(buffer_id, ns_id, 0, -1, {})
+		vim.api.nvim_buf_clear_namespace(buffer_id, ns_id, 0, utils.get_last_row_index())
+		local virtual_texts = vim.api.nvim_buf_get_extmarks(buffer_id, ns_id, 0, -1, {})
 
-			if #virtual_texts then
-				for _, virtual_text in pairs(virtual_texts) do
-					local extmart_id = virtual_text[1]
-					if (tonumber(extmart_id) ~= nil) then
-						vim.api.nvim_buf_del_extmark(buffer_id, ns_id, extmart_id)
-					end
+		if #virtual_texts then
+			for _, virtual_text in pairs(virtual_texts) do
+				local extmart_id = virtual_text[1]
+				if tonumber(extmart_id) ~= nil then
+					vim.api.nvim_buf_del_extmark(buffer_id, ns_id, extmart_id)
 				end
 			end
 		end
-	)
+	end)
 end
 
 -- a cache of documentation text to hex code & hlgroup
@@ -194,7 +184,7 @@ end
 local format_cache = {}
 
 ---Formats nvim-cmp to showcase colors in the autocomplete
----@usage 
+---@usage
 ---Add the following to your nvim-cmp setup
 ---cmp.setup({
 ---...other configs
@@ -204,8 +194,8 @@ local format_cache = {}
 function M.format(entry, item)
 	item.menu = item.kind
 	item.kind = item.abbr
-	item.kind_hl_group = ''
-	item.abbr = ''
+	item.kind_hl_group = ""
+	item.abbr = ""
 
 	if item.menu ~= "Color" then
 		return item
@@ -236,7 +226,7 @@ end
 
 ---Callback to manually show the highlights
 function M.turn_on()
-	local buffers = vim.fn.getbufinfo({ buflisted = true })
+	local buffers = vim.fn.getbufinfo({ buflisted = 1 })
 
 	for _, buffer in ipairs(buffers) do
 		M.refresh_highlights(buffer.bufnr, false)
@@ -247,7 +237,7 @@ end
 
 ---Callback to manually hide the highlights
 function M.turn_off()
-	local buffers = vim.fn.getbufinfo({ buflisted = true })
+	local buffers = vim.fn.getbufinfo({ buflisted = 1 })
 
 	for _, buffer in ipairs(buffers) do
 		M.clear_highlights(buffer.bufnr)
@@ -303,27 +293,24 @@ vim.api.nvim_create_autocmd({
 	callback = M.handle_autocmd_callback,
 })
 
-vim.api.nvim_create_user_command("HighlightColors",
-	function(opts)
-		local arg = string.lower(opts.fargs[1])
-		if arg == "on" then
-			M.turn_on()
-		elseif arg == "off" then
-			M.turn_off()
-		elseif arg == "toggle" then
-			M.toggle()
-		elseif arg == "isactive" then
-			M.is_active()
-		end
+vim.api.nvim_create_user_command("HighlightColors", function(opts)
+	local arg = string.lower(opts.fargs[1])
+	if arg == "on" then
+		M.turn_on()
+	elseif arg == "off" then
+		M.turn_off()
+	elseif arg == "toggle" then
+		M.toggle()
+	elseif arg == "isactive" then
+		M.is_active()
+	end
+end, {
+	nargs = 1,
+	complete = function()
+		return { "On", "Off", "Toggle", "IsActive" }
 	end,
-	{
-		nargs = 1,
-		complete = function()
-			return { "On", "Off", "Toggle", "IsActive" }
-		end,
-		desc = "Config color highlight"
-	}
-)
+	desc = "Config color highlight",
+})
 
 return {
 	turnOff = M.turn_off,
