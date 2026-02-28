@@ -102,4 +102,43 @@ function M.hsl_to_rgb(h, s, l)
 	}
 end
 
+---Converts an oklch color to rgb
+---@param l number Lightness (0-1)
+---@param c number Chroma (0+)
+---@param h number Hue in degrees (0-360)
+---@return {r: number, g: number, b: number}
+function M.oklch_to_rgb(l, c, h)
+	local h_rad = h * math.pi / 180
+	local a_lab = c * math.cos(h_rad)
+	local b_lab = c * math.sin(h_rad)
+
+	-- oklab -> LMS (approximate cube roots)
+	local l_ = l + 0.3963377774 * a_lab + 0.2158037573 * b_lab
+	local m_ = l - 0.1055613458 * a_lab - 0.0638541728 * b_lab
+	local s_ = l - 0.0894841775 * a_lab - 1.2914855480 * b_lab
+
+	local lc = l_ * l_ * l_
+	local mc = m_ * m_ * m_
+	local sc = s_ * s_ * s_
+
+	-- LMS -> linear sRGB
+	local r_lin = 4.0767416621 * lc - 3.3077115913 * mc + 0.2309699292 * sc
+	local g_lin = -1.2684380046 * lc + 2.6097574011 * mc - 0.3413193965 * sc
+	local b_lin = -0.0041960863 * lc - 0.7034186147 * mc + 1.7076147010 * sc
+
+	-- gamma correction
+	local function gamma(x)
+		if x <= 0.0031308 then
+			return 12.92 * x
+		end
+		return 1.055 * (x ^ (1 / 2.4)) - 0.055
+	end
+
+	local function clamp(x)
+		return math.max(0, math.min(255, math.floor(x * 255 + 0.5)))
+	end
+
+	return { clamp(gamma(r_lin)), clamp(gamma(g_lin)), clamp(gamma(b_lin)) }
+end
+
 return M

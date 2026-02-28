@@ -15,6 +15,12 @@ M.var_usage_regex = "var%(" .. M.var_regex .. "%)"
 
 M.tailwind_prefix = "!?%a+"
 
+M.oklch_regex = "oklch[(]+"
+	.. "%s*%d*%.?%d+%%?%s+"
+	.. "%d*%.?%d+%s+"
+	.. "%d*%.?%d+d?e?g?r?a?d?t?u?r?n?"
+	.. "[%s,/]*%d*%.?%d*%%?%s*[)]+"
+
 M.ansi_regex = "\\033%[%d;%d%dm"
 
 M.xterm256_regex = "\\033%[[0-9;]*[34]8;5;%d?%d?%dm"
@@ -80,6 +86,13 @@ end
 ---@return boolean
 function M.is_hsl_without_func_color(color)
 	return string.match(color, M.hsl_without_func_regex) ~= nil
+end
+
+---Checks whether a color is oklch
+---@param color string
+---@return boolean
+function M.is_oklch_color(color)
+	return string.match(color, M.oklch_regex) ~= nil
 end
 
 ---Checks whether a color is a CSS var color

@@ -35,6 +35,12 @@ function M.get_color_value(color, row_offset, custom_colors, enable_short_hex)
 		end
 	end
 
+	if patterns.is_oklch_color(color) then
+		local oklch_table = M.get_oklch_values(color)
+		local rgb_table = converters.oklch_to_rgb(oklch_table[1], oklch_table[2], oklch_table[3])
+		return converters.rgb_to_hex(rgb_table[1], rgb_table[2], rgb_table[3])
+	end
+
 	if patterns.is_hsl_color(color) then
 		local hsl_table = M.get_hsl_values(color)
 		local rgb_table = converters.hsl_to_rgb(hsl_table[1], hsl_table[2], hsl_table[3])
@@ -130,6 +136,38 @@ function M.get_hsl_without_func_values(color)
 		end
 	end
 	return hsl_table
+end
+
+---Returns the oklch table {l, c, h} from an oklch string, normalized
+---@param color string
+---@return number[]
+function M.get_oklch_values(color)
+	local inner = color:match("oklch%((.+)%)")
+	if not inner then
+		return { 0, 0, 0 }
+	end
+	local parts = {}
+	for token in inner:gmatch("[%d%.]+%%?%a*") do
+		table.insert(parts, token)
+	end
+	-- L: if ends with %, divide by 100
+	local l = tonumber(parts[1]:match("[%d%.]+")) or 0
+	if parts[1]:match("%%") then
+		l = l / 100
+	end
+	-- C: plain number
+	local c = tonumber(parts[2]:match("[%d%.]+")) or 0
+	-- H: handle deg/rad/grad/turn, default degrees
+	local h_val = tonumber(parts[3]:match("[%d%.]+")) or 0
+	local h_unit = parts[3]:match("%a+") or ""
+	if h_unit == "rad" then
+		h_val = h_val * 180 / math.pi
+	elseif h_unit == "grad" then
+		h_val = h_val * 0.9
+	elseif h_unit == "turn" then
+		h_val = h_val * 360
+	end
+	return { l, c, h_val }
 end
 
 ---Returns the hex value of a CSS color
