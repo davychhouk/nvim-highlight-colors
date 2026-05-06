@@ -3,7 +3,9 @@ local M = {}
 M.rgb_regex = "rgba?[(]+" .. string.rep("%s*%d+%s*", 3, "[,%s]") .. "[,%s/]?%s*%d*%.?%d*%%?%s*[)]+"
 M.hex_regex = "#%x%x%x+%f[^%w_-]"
 M.hex_0x_regex = "%f[%w_]0x%x%x%x+%f[^%w_]"
-M.hsl_regex = "hsla?[(]+" .. string.rep("%s*%d*%.?%d+%%?d?e?g?t?u?r?n?%s*", 3, "[,%s]") .. "[%s,/]?%s*%d*%.?%d*%%?%s*[)]+"
+M.hsl_regex = "hsla?[(]+"
+	.. string.rep("%s*%d*%.?%d+%%?d?e?g?t?u?r?n?%s*", 3, "[,%s]")
+	.. "[%s,/]?%s*%d*%.?%d*%%?%s*[)]+"
 -- Matches: `: 0 69% 69%`
 M.hsl_without_func_regex = ":" .. string.rep("%s*%d*%.?%d+%%?d?e?g?t?u?r?n?%s*", 3, "[,%s]")
 
@@ -12,6 +14,12 @@ M.var_declaration_regex = M.var_regex .. ":%s*" .. M.hex_regex
 M.var_usage_regex = "var%(" .. M.var_regex .. "%)"
 
 M.tailwind_prefix = "!?%a+"
+
+M.oklch_regex = "oklch[(]+"
+	.. "%s*%d*%.?%d+%%?%s+"
+	.. "%d*%.?%d+%s+"
+	.. "%d*%.?%d+d?e?g?r?a?d?t?u?r?n?"
+	.. "[%s,/]*%d*%.?%d*%%?%s*[)]+"
 
 M.ansi_regex = "\\033%[%d;%d%dm"
 
@@ -80,6 +88,13 @@ function M.is_hsl_without_func_color(color)
 	return string.match(color, M.hsl_without_func_regex) ~= nil
 end
 
+---Checks whether a color is oklch
+---@param color string
+---@return boolean
+function M.is_oklch_color(color)
+	return string.match(color, M.oklch_regex) ~= nil
+end
+
 ---Checks whether a color is a CSS var color
 ---@param color string
 ---@usage is_var_color("var(--css-color)") => Returns true
@@ -131,7 +146,7 @@ end
 ---@usage is_xterm256_color("\\033[1;6;38;5;75m") => Returns true
 ---@return boolean
 function M.is_xterm256_color(color)
-	if (string.match(color, M.xterm256_regex) ~= nil) then
+	if string.match(color, M.xterm256_regex) ~= nil then
 		local color_nr = tonumber(string.match(color, "(%d?%d?%d)m"))
 		return (color_nr ~= nil and color_nr < 256)
 	end
@@ -145,7 +160,7 @@ end
 ---@usage is_xtermTrueColor_color("\\033[1;6;38;2;237;139;0m") => Returns true
 ---@return boolean
 function M.is_xtermTrueColor_color(color)
-	if (string.match(color, M.xtermTrueColor_regex) ~= nil) then
+	if string.match(color, M.xtermTrueColor_regex) ~= nil then
 		local _, _, r, g, b = string.find(color, "(%d?%d?%d);(%d?%d?%d);(%d?%d?%d)m")
 		r = tonumber(r)
 		g = tonumber(g)
