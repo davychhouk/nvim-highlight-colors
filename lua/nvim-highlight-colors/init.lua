@@ -27,6 +27,7 @@ local options = {
 	enable_ansi = false,
 	enable_xterm256 = false,
 	enable_xtermTrueColor = false,
+	enable_ls_colors = false,
 	custom_colors = nil,
 	virtual_symbol = "■",
 	virtual_symbol_prefix = "",
@@ -110,6 +111,10 @@ function M.highlight_colors(min_row, max_row, active_buffer_id)
 		XTERM_TRUECOLOR = {
 			is_enabled = options.enable_xtermTrueColor,
 			patterns = { color_patterns.xtermTrueColor_regex },
+		},
+		LS_COLORS = {
+			is_enabled = options.enable_ls_colors,
+			patterns = { color_patterns.ls_colors_regex },
 		},
 	}
 

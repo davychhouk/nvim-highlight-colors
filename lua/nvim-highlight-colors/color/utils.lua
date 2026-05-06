@@ -72,6 +72,10 @@ function M.get_color_value(color, row_offset, custom_colors, enable_short_hex)
 		end
 	end
 
+	if patterns.is_ls_colors_color(color) then
+		return M.get_ls_colors_named_color_value(color)
+	end
+
 	if patterns.is_named_color({ M.get_tailwind_named_color_pattern() }, color) then
 		local tailwind_color = M.get_tailwind_named_color_value(color)
 		if tailwind_color ~= nil then
@@ -235,6 +239,14 @@ function M.get_xtermTrueColor_rgb_values(color)
 		end
 	end
 	return nil
+end
+
+---Returns the hex value of an LS_COLORS color
+---@param color string
+---@usage get_ls_colors_named_color_value("=38;5;190:") => Returns '#D7FF00'
+---@return string|nil
+function M.get_ls_colors_named_color_value(color)
+	return xterm256_named_colors[tonumber(string.match(color, "(%d?%d?%d):"))]
 end
 
 ---Returns a pattern for tailwind colors
