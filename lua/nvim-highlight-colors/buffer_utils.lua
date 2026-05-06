@@ -3,6 +3,7 @@ local table_utils = require("nvim-highlight-colors.table_utils")
 local M = {}
 
 M.color_usage_regex = "[:=]+%s*[\"']?"
+M.color_usage_removal_regex = M.color_usage_regex .. "(%a+)[\"']?"
 
 ---Returns the text content of the specified buffer within received range
 ---@param min_row number
@@ -39,9 +40,10 @@ function M.get_positions_by_regex(patterns, min_row, max_row, active_buffer_id, 
 			for match in string.gmatch(value, pattern) do
 				local row = key + min_row - row_offset
 				local column_offset = M.get_column_offset(positions, match, row)
-				local pattern_without_usage_regex = M.remove_color_usage_pattern(match)
-				local valid_start, start_column = pcall(vim.fn.match, value, pattern_without_usage_regex, column_offset)
-				local valid_end, end_column = pcall(vim.fn.matchend, value, pattern_without_usage_regex, column_offset)
+				local adjusted_match = M.remove_color_usage_pattern(match)
+				adjusted_match = M.adjust_backslashes_for_vim_regex(adjusted_match)
+				local valid_start, start_column = pcall(vim.fn.match, value, adjusted_match, column_offset)
+				local valid_end, end_column = pcall(vim.fn.matchend, value, adjusted_match, column_offset)
 				local isFalsePositiveCSSVariable = match == ": var"
 
 				if valid_start and valid_end and not isFalsePositiveCSSVariable then
@@ -90,13 +92,22 @@ end
 ---Named colors have a safe guard to prevent false positives, therefore the named colors pattern is configured to only work when a color usage is detected
 ---e.g 'background = blue' will get highlighted while 'blue is great' will not.
 ---
----The issue with this logic is that the `match` value for said color would be `= blue`, which is not what we want. This function transforms this string to just `blue`
+---The issue with this logic is that the `match` value for said color would be `= blue`, which is not what we want. This function transforms this string to just `blue`.
+---We use the `color_usage_removal_regex` here so there is no mixup with LS_COLORS or other false positives that can be detected with the named colors pattern.
 ---@param match string
 ---@usage remove_color_usage_pattern(": blue") => Returns "blue"
 ---@return string
 function M.remove_color_usage_pattern(match)
-	local _, end_index = string.find(match, M.color_usage_regex)
-	return end_index and string.sub(match, end_index + 1, string.len(match)) or match
+	local color = string.match(match, M.color_usage_removal_regex)
+	return color or match
+end
+
+---Adjusts backslashes in the color string to be properly detected by vim's regex engine.
+---@param match string
+---@usage adjust_backslashes_for_vim_regex("\\") => Returns "\\\\"
+---@return string
+function M.adjust_backslashes_for_vim_regex(match)
+	return string.gsub(match, "\\", "\\\\")
 end
 
 return M

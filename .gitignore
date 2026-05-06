@@ -1,1 +1,7 @@
 *.swap
+
+# lua shell
+.direnv
+
+# claude
+.claude

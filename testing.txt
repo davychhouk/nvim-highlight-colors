@@ -116,6 +116,20 @@
 -- https://www.colourlovers.com/color/06C5A4/Caribbean_sea
 -- https://www.colourlovers.com/color/519B78/never_used_green
 
++--------------------+---------------+----------+
+| Color name         | LS_COLORS     | Hex code |
++--------------------+---------------+----------+
+| SteelBlue1         | =38;5;81:     | #5FD7FF  |
+| DeepPink4          | =38;5;125:    | #AF005F  |
+| DarkGoldenrod      | =38;5;136:    | #AF8700  |
+| Grey35             | =38;5;240:    | #585858  |
+| Bold Red           | =1;38;5;9:    | #FF0000  |
+| Fast blink Purple4 | =6;38;5;54:   | #5F0087  |
+| Faint italic Cyan1 | =2;3;38;5;51: | #00FFFF  |
++--------------------+---------------+----------+
+-- Names and values from:
+-- https://www.ditig.com/256-colors-cheat-sheet
+
 
 +------------------------------------------------------------------------+
 |                          Scrolling Speed Test                          |
