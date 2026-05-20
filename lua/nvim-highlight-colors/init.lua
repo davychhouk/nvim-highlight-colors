@@ -54,7 +54,7 @@ function M.setup(user_options)
 	end
 	vim.tbl_map(function(bufnr)
 		M.refresh_highlights(bufnr, true)
-	end, vim.api.nvim_list_bufs())
+	end, vim.tbl_filter(vim.api.nvim_buf_is_loaded, vim.api.nvim_list_bufs()))
 end
 
 ---Highlight visible colors within specified buffer id
