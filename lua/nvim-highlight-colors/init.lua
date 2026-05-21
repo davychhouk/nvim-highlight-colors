@@ -304,7 +304,11 @@ vim.api.nvim_create_user_command("HighlightColors", function(opts)
 	elseif arg == "toggle" then
 		M.toggle()
 	elseif arg == "isactive" then
-		vim.notify(tostring(M.is_active()))
+		local active = M.is_active()
+		vim.notify(
+			"HighlightColors is " .. (active and "active" or "inactive"),
+			active and vim.log.levels.INFO or vim.log.levels.WARN
+		)
 	end
 end, {
 	nargs = 1,
