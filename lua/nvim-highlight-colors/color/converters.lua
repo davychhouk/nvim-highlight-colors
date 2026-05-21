@@ -3,9 +3,9 @@ local patterns = require("nvim-highlight-colors.color.patterns")
 local M = {}
 
 ---Converts a rgb color to hex
----@param r string
----@param g string
----@param b string
+---@param r number
+---@param g number
+---@param b number
 ---@usage rgb_to_hex(255, 255, 255) => Returns '#FFFFFF'
 ---@return string
 function M.rgb_to_hex(r, g, b)
@@ -48,9 +48,9 @@ end
 local a
 
 ---Converts a hsl color to rgb
----@param h string
----@param s string
----@param l string
+---@param h number
+---@param s number
+---@param l number
 ---@usage hsl_to_rgb(240, 100, 68) => Returns {91, 91, 255, 255}
 ---@return {r: number, g: number, b: number, a: number}
 -- Function retrieved from this stackoverflow post:

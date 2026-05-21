@@ -52,9 +52,11 @@ function M.setup(user_options)
 			end
 		end
 	end
-	vim.tbl_map(function(bufnr)
-		M.refresh_highlights(bufnr, true)
-	end, vim.tbl_filter(vim.api.nvim_buf_is_loaded, vim.api.nvim_list_bufs()))
+	for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+		if vim.api.nvim_buf_is_loaded(bufnr) then
+			M.refresh_highlights(bufnr, true)
+		end
+	end
 end
 
 ---Highlight visible colors within specified buffer id
@@ -211,20 +213,20 @@ function M.format(entry, item)
 		return item
 	end
 
-	local entryDoc = entry
-	if type(entryDoc) == "table" then
-		entryDoc = vim.tbl_get(entry or {}, "completion_item", "documentation")
+	local entry_doc = entry
+	if type(entry_doc) == "table" then
+		entry_doc = vim.tbl_get(entry or {}, "completion_item", "documentation")
 	end
-	if type(entryDoc) ~= "string" then
+	if type(entry_doc) ~= "string" then
 		return item
 	end
 
-	local cached = format_cache[entryDoc]
+	local cached = format_cache[entry_doc]
 	if cached == nil then
-		local color_hex = colors.get_color_value(entryDoc)
+		local color_hex = colors.get_color_value(entry_doc)
 		cached = color_hex and { hl_group = utils.create_highlight_name("fg-" .. color_hex), color_hex = color_hex }
 			or false
-		format_cache[entryDoc] = cached
+		format_cache[entry_doc] = cached
 	end
 	if cached then
 		vim.api.nvim_set_hl(0, cached.hl_group, { fg = cached.color_hex, default = true })
@@ -323,8 +325,8 @@ end, {
 })
 
 return {
-	turnOff = M.turn_off,
-	turnOn = M.turn_on,
+	turn_off = M.turn_off,
+	turn_on = M.turn_on,
 	setup = M.setup,
 	toggle = M.toggle,
 	is_active = M.is_active,

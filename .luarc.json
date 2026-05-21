@@ -1,12 +1,5 @@
 {
   "runtime": {
     "version": "LuaJIT"
-  },
-  "workspace": {
-    "library": ["${3rd}/busted/library", "$VIMRUNTIME"],
-    "checkThirdParty": false
-  },
-  "diagnostics": {
-    "globals": ["vim"]
   }
 }

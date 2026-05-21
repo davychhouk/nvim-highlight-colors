@@ -299,7 +299,7 @@ function M.get_css_var_color(color, row_offset)
 		table.insert(var_patterns, var_name_regex .. css_color_pattern)
 	end
 
-	local var_position = buffer_utils.get_positions_by_regex(var_patterns, 0, vim.fn.line("$"), 0, row_offset)
+	local var_position = buffer_utils.get_positions_by_regex(var_patterns, 0, vim.fn["line"]("$"), 0, row_offset)
 
 	if #var_position > 0 then
 		local hex_color = string.match(var_position[1].value, patterns.hex_regex)
@@ -333,19 +333,16 @@ function M.get_foreground_color_from_hex_color(color)
 		return nil
 	end
 
-	-- see: https://stackoverflow.com/a/3943023/16807083
-	rgb_table = vim.tbl_map(function(value)
+	for i, value in ipairs(rgb_table) do
 		value = value / 255
-
 		if value <= 0.04045 then
-			return value / 12.92
+			rgb_table[i] = value / 12.92
+		else
+			rgb_table[i] = ((value + 0.055) / 1.055) ^ 2.4
 		end
-
-		return ((value + 0.055) / 1.055) ^ 2.4
-	end, rgb_table)
+	end
 
 	local luminance = (0.2126 * rgb_table[1]) + (0.7152 * rgb_table[2]) + (0.0722 * rgb_table[3])
-
 	return luminance > 0.179 and "#000000" or "#ffffff"
 end
 
