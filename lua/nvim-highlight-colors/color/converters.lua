@@ -45,8 +45,6 @@ function M.short_hex_to_hex(color)
 	return new_color
 end
 
-local a
-
 ---Converts a hsl color to rgb
 ---@param h number
 ---@param s number
@@ -91,15 +89,7 @@ function M.hsl_to_rgb(h, s, l)
 		b = hue2rgb(p, q, h - 1 / 3)
 	end
 
-	if not a then
-		a = 1
-	end
-	return {
-		math.floor(r * 255),
-		math.floor(g * 255),
-		math.floor(b * 255),
-		math.floor(a * 255),
-	}
+	return { math.floor(r * 255), math.floor(g * 255), math.floor(b * 255) }
 end
 
 ---Converts an oklch color to rgb

@@ -1,3 +1,5 @@
+-- Colors from Tailwind CSS v4 (oklch-based). black/white are stored as hex
+-- because oklch(0 0 0) and oklch(1 0 0) round-trip identically and hex is simpler.
 return {
 	["black"] = "#000000",
 	["white"] = "#FFFFFF",

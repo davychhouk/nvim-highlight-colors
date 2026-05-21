@@ -157,7 +157,13 @@ require("nvim-highlight-colors").setup {
 
 	---Highlight hsl colors, e.g. 'hsl(150deg 30% 40%)'
 	enable_hsl = true,
-	
+
+	---Highlight oklch colors, e.g. 'oklch(0.7 0.15 200)'
+	enable_oklch = true,
+
+	---Highlight hsl colors without function, e.g. '--foreground: 0 69% 69%;'
+	enable_hsl_without_function = true,
+
 	---Highlight ansi colors, e.g '\033[0;34m'
 	enable_ansi = false,
 
@@ -170,9 +176,6 @@ require("nvim-highlight-colors").setup {
 	---Highlight LS_COLORS colors, e.g '=38;5;118:'
 	enable_ls_colors = false,
 
-  -- Highlight hsl colors without function, e.g. '--foreground: 0 69% 69%;'
-  enable_hsl_without_function = true,
-
 	---Highlight CSS variables, e.g. 'var(--testing-color)'
 	enable_var_usage = true,
 
@@ -180,6 +183,8 @@ require("nvim-highlight-colors").setup {
 	enable_named_colors = true,
 
 	---Highlight tailwind colors, e.g. 'bg-blue-500'
+	---Colors match Tailwind CSS v4 (oklch-based). Includes the four palettes
+	---added in v4: mauve, olive, mist, and taupe.
 	enable_tailwind = false,
 
 	---Set custom colors

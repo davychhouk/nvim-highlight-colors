@@ -8,6 +8,15 @@ local xterm256_named_colors = require("nvim-highlight-colors.named-colors.xterm2
 
 local M = {}
 
+-- Cache for CSS variable declaration lookups, keyed by bufnr.
+-- Each entry: { changedtick = N, vars = { ["--name"] = "#hex" | false } }
+-- false means "scanned but not found"; nil means "not yet scanned".
+local css_var_cache = {}
+
+function M.clear_css_var_cache()
+	css_var_cache = {}
+end
+
 ---@param t string[]
 ---@return number, number, number
 local function to_nums(t)
@@ -22,6 +31,10 @@ end
 ---@usage get_color_value("rgb(255, 255, 255)") => Returns "#FFFFFF"
 ---@return string | nil
 function M.get_color_value(color, row_offset, custom_colors, enable_short_hex)
+	if color == nil then
+		return nil
+	end
+
 	if enable_short_hex and patterns.is_short_hex_color(color) then
 		return converters.short_hex_to_hex(color)
 	end
@@ -63,10 +76,6 @@ function M.get_color_value(color, row_offset, custom_colors, enable_short_hex)
 		return M.get_css_named_color_value(color)
 	end
 
-	if patterns.is_ansi_color(color) then
-		return M.get_ansi_named_color_value(color)
-	end
-
 	if patterns.is_xterm256_color(color) then
 		return M.get_xterm256_named_color_value(color)
 	end
@@ -76,6 +85,10 @@ function M.get_color_value(color, row_offset, custom_colors, enable_short_hex)
 		if rgb_table ~= nil then
 			return converters.rgb_to_hex(to_nums(rgb_table))
 		end
+	end
+
+	if patterns.is_ansi_color(color) then
+		return M.get_ansi_named_color_value(color)
 	end
 
 	if patterns.is_ls_colors_color(color) then
@@ -286,12 +299,27 @@ end
 ---@return string|nil
 function M.get_css_var_color(color, row_offset)
 	local var_name = string.match(color, patterns.var_regex)
+	local bufnr = vim.api.nvim_get_current_buf()
+	local changedtick = vim.api.nvim_buf_get_changedtick(bufnr)
+
+	if css_var_cache[bufnr] and css_var_cache[bufnr].changedtick ~= changedtick then
+		css_var_cache[bufnr] = nil
+	end
+	if not css_var_cache[bufnr] then
+		css_var_cache[bufnr] = { changedtick = changedtick, vars = {} }
+	end
+
+	local cached = css_var_cache[bufnr].vars[var_name]
+	if cached ~= nil then
+		return cached or nil
+	end
+
 	local var_name_regex = string.gsub(var_name, "%-", "%%-")
 	local value_patterns = {
 		patterns.hex_regex,
 		patterns.rgb_regex,
 		patterns.hsl_regex,
-		patterns.hsl_without_func_regex:gsub("^:%s*", ""),
+		patterns.hsl_without_func_value_regex,
 	}
 	local var_patterns = {}
 
@@ -304,25 +332,27 @@ function M.get_css_var_color(color, row_offset)
 
 	local var_position = buffer_utils.get_positions_by_regex(var_patterns, 0, vim.fn.line("$"), 0, row_offset)
 
+	local result = nil
 	if #var_position > 0 then
 		local hex_color = string.match(var_position[1].value, patterns.hex_regex)
 		local rgb_color = string.match(var_position[1].value, patterns.rgb_regex)
 		local hsl_color = string.match(var_position[1].value, patterns.hsl_regex)
 		local hsl_without_func_color = string.match(var_position[1].value, patterns.hsl_without_func_regex)
 		if hex_color then
-			return M.get_color_value(hex_color)
+			result = M.get_color_value(hex_color)
 		elseif rgb_color then
-			return M.get_color_value(rgb_color)
+			result = M.get_color_value(rgb_color)
 		elseif hsl_color then
-			return M.get_color_value(hsl_color)
+			result = M.get_color_value(hsl_color)
 		elseif hsl_without_func_color then
-			return M.get_color_value(hsl_without_func_color)
+			result = M.get_color_value(hsl_without_func_color)
 		else
-			return M.get_css_named_color_value(string.gsub(var_position[1].value, var_name_regex, ""))
+			result = M.get_css_named_color_value(string.gsub(var_position[1].value, var_name_regex, ""))
 		end
 	end
 
-	return nil
+	css_var_cache[bufnr].vars[var_name] = result or false
+	return result
 end
 
 ---Returns a contrast friendly color that matches the current color for reading purposes
