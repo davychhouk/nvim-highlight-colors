@@ -112,13 +112,11 @@ describe("Color Utils", function()
 	end)
 
 	it("should return readable foreground color for bright colors", function()
-		stub(vim, "tbl_map").returns({ 255, 255, 255 })
 		local hex_value = utils.get_foreground_color_from_hex_color("#FFFFFF")
 		assert.are.equal(hex_value, "#000000")
 	end)
 
 	it("should return readable foreground color for darker colors", function()
-		stub(vim, "tbl_map").returns({ 0, 0, 0 })
 		local hex_value = utils.get_foreground_color_from_hex_color("#000000")
 		assert.are.equal(hex_value, "#ffffff")
 	end)

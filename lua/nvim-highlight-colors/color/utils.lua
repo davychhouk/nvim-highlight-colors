@@ -8,6 +8,12 @@ local xterm256_named_colors = require("nvim-highlight-colors.named-colors.xterm2
 
 local M = {}
 
+---@param t string[]
+---@return number, number, number
+local function to_nums(t)
+	return tonumber(t[1]) or 0, tonumber(t[2]) or 0, tonumber(t[3]) or 0
+end
+
 ---Returns the color value in hex
 ---@param color string
 ---@param row_offset? number
@@ -31,7 +37,7 @@ function M.get_color_value(color, row_offset, custom_colors, enable_short_hex)
 	if patterns.is_rgb_color(color) then
 		local rgb_table = M.get_rgb_values(color)
 		if #rgb_table >= 3 then
-			return converters.rgb_to_hex(rgb_table[1], rgb_table[2], rgb_table[3])
+			return converters.rgb_to_hex(to_nums(rgb_table))
 		end
 	end
 
@@ -43,13 +49,13 @@ function M.get_color_value(color, row_offset, custom_colors, enable_short_hex)
 
 	if patterns.is_hsl_color(color) then
 		local hsl_table = M.get_hsl_values(color)
-		local rgb_table = converters.hsl_to_rgb(hsl_table[1], hsl_table[2], hsl_table[3])
+		local rgb_table = converters.hsl_to_rgb(to_nums(hsl_table))
 		return converters.rgb_to_hex(rgb_table[1], rgb_table[2], rgb_table[3])
 	end
 
 	if patterns.is_hsl_without_func_color(color) then
 		local hsl_table = M.get_hsl_without_func_values(color)
-		local rgb_table = converters.hsl_to_rgb(hsl_table[1], hsl_table[2], hsl_table[3])
+		local rgb_table = converters.hsl_to_rgb(to_nums(hsl_table))
 		return converters.rgb_to_hex(rgb_table[1], rgb_table[2], rgb_table[3])
 	end
 
@@ -68,7 +74,7 @@ function M.get_color_value(color, row_offset, custom_colors, enable_short_hex)
 	if patterns.is_xtermTrueColor_color(color) then
 		local rgb_table = M.get_xtermTrueColor_rgb_values(color)
 		if rgb_table ~= nil then
-			return converters.rgb_to_hex(rgb_table[1], rgb_table[2], rgb_table[3])
+			return converters.rgb_to_hex(to_nums(rgb_table))
 		end
 	end
 
@@ -198,10 +204,7 @@ function M.get_tailwind_named_color_value(color)
 	if tailwind_color == nil then
 		return nil
 	end
-	local rgb_table = M.get_rgb_values(tailwind_color)
-	if #rgb_table >= 3 then
-		return converters.rgb_to_hex(rgb_table[1], rgb_table[2], rgb_table[3])
-	end
+	return M.get_color_value(tailwind_color)
 end
 
 ---Returns the hex value of a python ansi color
@@ -333,19 +336,16 @@ function M.get_foreground_color_from_hex_color(color)
 		return nil
 	end
 
-	-- see: https://stackoverflow.com/a/3943023/16807083
-	rgb_table = vim.tbl_map(function(value)
+	for i, value in ipairs(rgb_table) do
 		value = value / 255
-
 		if value <= 0.04045 then
-			return value / 12.92
+			rgb_table[i] = value / 12.92
+		else
+			rgb_table[i] = ((value + 0.055) / 1.055) ^ 2.4
 		end
-
-		return ((value + 0.055) / 1.055) ^ 2.4
-	end, rgb_table)
+	end
 
 	local luminance = (0.2126 * rgb_table[1]) + (0.7152 * rgb_table[2]) + (0.0722 * rgb_table[3])
-
 	return luminance > 0.179 and "#000000" or "#ffffff"
 end
 

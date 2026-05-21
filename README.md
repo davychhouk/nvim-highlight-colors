@@ -231,8 +231,8 @@ require("nvim-highlight-colors").setup {
 Commands are also available in lua:
 
 ```lua
-require("nvim-highlight-colors").turnOn()
-require("nvim-highlight-colors").turnOff()
+require("nvim-highlight-colors").turn_on()
+require("nvim-highlight-colors").turn_off()
 require("nvim-highlight-colors").toggle()
 require("nvim-highlight-colors").is_active()
 ```
