@@ -74,7 +74,6 @@ describe("Utils", function()
 	end)
 
 	it("should create highlight for hex color in background mode", function()
-		stub(vim, "tbl_map").returns({ 255, 255, 255 })
 		spy.on(vim.api, "nvim_set_hl")
 		spy.on(vim.api, "nvim_buf_set_extmark")
 		local params = {
@@ -104,7 +103,6 @@ describe("Utils", function()
 	end)
 
 	it("should not call highlight_extmarks in background mode", function()
-		stub(vim, "tbl_map").returns({ 255, 255, 255 })
 		spy.on(vim.api, "nvim_set_hl")
 		spy.on(vim.api, "highlight_extmarks")
 		local params = {
@@ -151,7 +149,6 @@ describe("Utils", function()
 	end)
 
 	it("should create highlight for short hex color in background mode", function()
-		stub(vim, "tbl_map").returns({ 255, 255, 255 })
 		spy.on(vim.api, "nvim_set_hl")
 		spy.on(vim.api, "nvim_buf_set_extmark")
 		local params = {
@@ -182,7 +179,6 @@ describe("Utils", function()
 	end)
 
 	it("should create highlight for custom colors in background mode", function()
-		stub(vim, "tbl_map").returns({ 255, 255, 255 })
 		spy.on(vim.api, "nvim_set_hl")
 		spy.on(vim.api, "nvim_buf_set_extmark")
 		local params = {

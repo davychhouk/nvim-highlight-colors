@@ -44,9 +44,8 @@ function M.get_positions_by_regex(patterns, min_row, max_row, active_buffer_id, 
 				adjusted_match = M.adjust_backslashes_for_vim_regex(adjusted_match)
 				local valid_start, start_column = pcall(vim.fn.match, value, adjusted_match, column_offset)
 				local valid_end, end_column = pcall(vim.fn.matchend, value, adjusted_match, column_offset)
-				local isFalsePositiveCSSVariable = match == ": var"
-
-				if valid_start and valid_end and not isFalsePositiveCSSVariable then
+				local is_false_positive_css_var = match == ": var"
+				if valid_start and valid_end and not is_false_positive_css_var then
 					table.insert(positions, {
 						value = match,
 						row = row,
@@ -107,7 +106,7 @@ end
 ---@usage adjust_backslashes_for_vim_regex("\\") => Returns "\\\\"
 ---@return string
 function M.adjust_backslashes_for_vim_regex(match)
-	return string.gsub(match, "\\", "\\\\")
+	return (string.gsub(match, "\\", "\\\\"))
 end
 
 return M

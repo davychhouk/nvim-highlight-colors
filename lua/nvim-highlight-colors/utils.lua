@@ -115,8 +115,7 @@ function M.highlight_extmarks(active_buffer_id, ns_id, data, highlight_group, op
 	end
 
 	vim.api.nvim_buf_set_extmark(active_buffer_id, ns_id, start_extmark_row, virtual_text_column, {
-
-		virt_text_pos = virtual_text_position == "eow" and "inline" or virtual_text_position,
+		virt_text_pos = (virtual_text_position == "eow" and "inline" or virtual_text_position) --[[@as "eol"|"inline"|"overlay"|"right_align"|"eol_right_align"]],
 		virt_text = {
 			{
 				options.virtual_symbol_prefix .. options.virtual_symbol .. options.virtual_symbol_suffix,
@@ -172,9 +171,12 @@ function M.highlight_with_lsp(active_buffer_id, ns_id, positions, options)
 	for _, client in pairs(clients) do
 		local nvim_version = vim.version()
 		if nvim_version.major == 0 and nvim_version.minor < 11 then
+			---@diagnostic disable-next-line: param-type-mismatch
 			if client.supports_method("textDocument/documentColor", { bufnr = active_buffer_id }) then
+				---@diagnostic disable-next-line: param-type-mismatch
 				client.request("textDocument/documentColor", param, function(_, response)
 					M.highlight_lsp_document_color(response, active_buffer_id, ns_id, positions, options)
+					---@diagnostic disable-next-line: param-type-mismatch
 				end, active_buffer_id)
 			end
 		else
@@ -200,8 +202,8 @@ function M.highlight_lsp_document_color(response, active_buffer_id, ns_id, posit
 	end
 
 	for _, match in pairs(response) do
-		local r, g, b, a = match.color.red or 0, match.color.green or 0, match.color.blue or 0, match.color.alpha or 0
-		local value = string.format("#%02x%02x%02x", r * a * 255, g * a * 255, b * a * 255)
+		local r, g, b = match.color.red or 0, match.color.green or 0, match.color.blue or 0
+		local value = string.format("#%02x%02x%02x", r * 255, g * 255, b * 255)
 		local range = match.range
 		local start_column = range.start.character
 		local end_column = range["end"].character
@@ -234,7 +236,7 @@ end
 ---@param client_name string?
 ---@return vim.lsp.Client[]
 function M.get_lsp_clients(active_buffer_id, client_name)
-	local get_clients = vim.lsp.get_clients or vim.lsp.get_active_clients
+	local get_clients = vim.lsp.get_clients
 	return get_clients({ bufnr = active_buffer_id, name = client_name })
 end
 

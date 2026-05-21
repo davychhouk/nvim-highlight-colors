@@ -52,9 +52,11 @@ function M.setup(user_options)
 			end
 		end
 	end
-	vim.tbl_map(function(bufnr)
-		M.refresh_highlights(bufnr, true)
-	end, vim.tbl_filter(vim.api.nvim_buf_is_loaded, vim.api.nvim_list_bufs()))
+	for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+		if vim.api.nvim_buf_is_loaded(bufnr) then
+			M.refresh_highlights(bufnr, true)
+		end
+	end
 end
 
 ---Highlight visible colors within specified buffer id
@@ -173,16 +175,6 @@ function M.clear_highlights(active_buffer_id)
 		local buffer_id = active_buffer_id ~= nil and active_buffer_id or 0
 
 		vim.api.nvim_buf_clear_namespace(buffer_id, ns_id, 0, utils.get_last_row_index())
-		local virtual_texts = vim.api.nvim_buf_get_extmarks(buffer_id, ns_id, 0, -1, {})
-
-		if #virtual_texts then
-			for _, virtual_text in pairs(virtual_texts) do
-				local extmart_id = virtual_text[1]
-				if tonumber(extmart_id) ~= nil then
-					vim.api.nvim_buf_del_extmark(buffer_id, ns_id, extmart_id)
-				end
-			end
-		end
 	end)
 end
 
@@ -211,20 +203,20 @@ function M.format(entry, item)
 		return item
 	end
 
-	local entryDoc = entry
-	if type(entryDoc) == "table" then
-		entryDoc = vim.tbl_get(entry or {}, "completion_item", "documentation")
+	local entry_doc = entry
+	if type(entry_doc) == "table" then
+		entry_doc = vim.tbl_get(entry or {}, "completion_item", "documentation")
 	end
-	if type(entryDoc) ~= "string" then
+	if type(entry_doc) ~= "string" then
 		return item
 	end
 
-	local cached = format_cache[entryDoc]
+	local cached = format_cache[entry_doc]
 	if cached == nil then
-		local color_hex = colors.get_color_value(entryDoc)
+		local color_hex = colors.get_color_value(entry_doc)
 		cached = color_hex and { hl_group = utils.create_highlight_name("fg-" .. color_hex), color_hex = color_hex }
 			or false
-		format_cache[entryDoc] = cached
+		format_cache[entry_doc] = cached
 	end
 	if cached then
 		vim.api.nvim_set_hl(0, cached.hl_group, { fg = cached.color_hex, default = true })
@@ -312,7 +304,7 @@ vim.api.nvim_create_user_command("HighlightColors", function(opts)
 	elseif arg == "toggle" then
 		M.toggle()
 	elseif arg == "isactive" then
-		M.is_active()
+		vim.notify(tostring(M.is_active()))
 	end
 end, {
 	nargs = 1,
@@ -323,8 +315,8 @@ end, {
 })
 
 return {
-	turnOff = M.turn_off,
-	turnOn = M.turn_on,
+	turn_off = M.turn_off,
+	turn_on = M.turn_on,
 	setup = M.setup,
 	toggle = M.toggle,
 	is_active = M.is_active,

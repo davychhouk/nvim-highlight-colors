@@ -6,8 +6,10 @@ M.hex_0x_regex = "%f[%w_]0x%x%x%x+%f[^%w_]"
 M.hsl_regex = "hsla?[(]+"
 	.. string.rep("%s*%d*%.?%d+%%?d?e?g?t?u?r?n?%s*", 3, "[,%s]")
 	.. "[%s,/]?%s*%d*%.?%d*%%?%s*[)]+"
+-- Matches: `0 69% 69%` (value portion only, no leading colon)
+M.hsl_without_func_value_regex = string.rep("%s*%d*%.?%d+%%?d?e?g?t?u?r?n?%s*", 3, "[,%s]")
 -- Matches: `: 0 69% 69%`
-M.hsl_without_func_regex = ":" .. string.rep("%s*%d*%.?%d+%%?d?e?g?t?u?r?n?%s*", 3, "[,%s]")
+M.hsl_without_func_regex = ":" .. M.hsl_without_func_value_regex
 
 M.var_regex = "%-%-[%d%a-_]+"
 M.var_declaration_regex = M.var_regex .. ":%s*" .. M.hex_regex
@@ -21,7 +23,7 @@ M.oklch_regex = "oklch[(]+"
 	.. "%d*%.?%d+d?e?g?r?a?d?t?u?r?n?"
 	.. "[%s,/]*%d*%.?%d*%%?%s*[)]+"
 
-M.ansi_regex = "\\033%[%d;%d%dm"
+M.ansi_regex = "\\033%[[0-9;]+m"
 
 M.xterm256_regex = "\\033%[[0-9;]*[34]8;5;%d?%d?%dm"
 M.xtermTrueColor_regex = "\\033%[[0-9;]*[34]8;2;%d?%d?%d;%d?%d?%d;%d?%d?%dm"
