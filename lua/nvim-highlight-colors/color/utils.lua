@@ -204,10 +204,7 @@ function M.get_tailwind_named_color_value(color)
 	if tailwind_color == nil then
 		return nil
 	end
-	local rgb_table = M.get_rgb_values(tailwind_color)
-	if #rgb_table >= 3 then
-		return converters.rgb_to_hex(to_nums(rgb_table))
-	end
+	return M.get_color_value(tailwind_color)
 end
 
 ---Returns the hex value of a python ansi color
