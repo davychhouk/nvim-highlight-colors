@@ -24,7 +24,7 @@ local function to_nums(t)
 end
 
 ---Returns the color value in hex
----@param color string
+---@param color string?
 ---@param row_offset? number
 ---@param custom_colors? {label: string, color: string}[]
 ---@param enable_short_hex? boolean

@@ -3,16 +3,21 @@ local assert = require("luassert")
 local buffer_utils = require("nvim-highlight-colors.buffer_utils")
 
 -- Needed to mock vim calls
-_G.vim = _G.vim or {
-	tbl_map = function() end,
-	fn = function()
-		return {}
-	end,
-	api = {
-		nvim_get_current_buf = function() return 0 end,
-		nvim_buf_get_changedtick = function() return 0 end,
-	},
-}
+_G.vim = _G.vim
+	or {
+		tbl_map = function() end,
+		fn = function()
+			return {}
+		end,
+		api = {
+			nvim_get_current_buf = function()
+				return 0
+			end,
+			nvim_buf_get_changedtick = function()
+				return 0
+			end,
+		},
+	}
 
 describe("Color Utils", function()
 	it("should return nil when color is nil", function()
