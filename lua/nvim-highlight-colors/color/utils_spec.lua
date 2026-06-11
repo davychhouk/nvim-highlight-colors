@@ -59,6 +59,16 @@ describe("Color Utils", function()
 		assert.are.equal(hex_value, "#000000")
 	end)
 
+	it("should return color value when receiving hyprland rgb", function()
+		local hex_value = utils.get_color_value("rgb(33ccff)")
+		assert.are.equal(hex_value, "#33CCFF")
+	end)
+
+	it("should return color value when receiving hyprland rgba (alpha dropped)", function()
+		local hex_value = utils.get_color_value("rgba(33ccffee)")
+		assert.are.equal(hex_value, "#33CCFF")
+	end)
+
 	it("should return color value when receiving hsl", function()
 		local hex_value = utils.get_color_value("hsl(0, 0, 0)")
 		assert.are.equal(hex_value, "#000000")

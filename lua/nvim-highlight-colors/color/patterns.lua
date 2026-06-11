@@ -1,6 +1,8 @@
 local M = {}
 
 M.rgb_regex = "rgba?[(]+" .. string.rep("%s*%d+%s*", 3, "[,%s]") .. "[,%s/]?%s*%d*%.?%d*%%?%s*[)]+"
+-- Hyprland hex-in-parens form: `rgb(RRGGBB)` / `rgba(RRGGBBAA)`
+M.hyprland_regex = "rgba?%(%x+%)"
 M.hex_regex = "#%x%x%x+%f[^%w_-]"
 M.hex_0x_regex = "%f[%w_]0x%x%x%x+%f[^%w_]"
 M.hsl_regex = "hsla?[(]+"
@@ -74,6 +76,20 @@ end
 ---@return boolean
 function M.is_rgb_color(color)
 	return string.match(color, M.rgb_regex) ~= nil
+end
+
+---Checks whether a color is a Hyprland hex rgb/rgba color
+---@param color string
+---@usage is_hyprland_color("rgb(33ccff)") => Returns true
+---@usage is_hyprland_color("rgba(33ccffee)") => Returns true
+---@return boolean
+function M.is_hyprland_color(color)
+	local hex = string.match(color, "rgba?%((%x+)%)")
+	if hex == nil then
+		return false
+	end
+	local len = string.len(hex)
+	return len == 6 or len == 8
 end
 
 ---Checks whether a color is hsl
