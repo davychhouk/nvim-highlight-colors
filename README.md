@@ -11,7 +11,7 @@
 ## Features
 
 - Realtime color highlighting
-- Supports hex, rgb, hsl, CSS variables, and Tailwind CSS
+- Supports hex, rgb, hsl, Hyprland rgb/rgba, CSS variables, and Tailwind CSS
 - LSP support! For any LSP that supports `textDocument/documentColor` like [tailwindcss](https://github.com/tailwindlabs/tailwindcss-intellisense) and [csslsp](https://github.com/microsoft/vscode-css-languageservice)
 - Multiple rendering modes: background, foreground, and virtual text
 
@@ -175,6 +175,9 @@ require("nvim-highlight-colors").setup {
 
 	---Highlight LS_COLORS colors, e.g '=38;5;118:'
 	enable_ls_colors = false,
+
+	---Highlight Hyprland hex rgb/rgba colors, e.g 'rgb(33ccff)', 'rgba(33ccffee)'
+	enable_hyprland = false,
 
 	---Highlight CSS variables, e.g. 'var(--testing-color)'
 	enable_var_usage = true,

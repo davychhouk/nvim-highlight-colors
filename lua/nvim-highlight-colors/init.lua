@@ -28,6 +28,7 @@ local options = {
 	enable_xterm256 = false,
 	enable_xtermTrueColor = false,
 	enable_ls_colors = false,
+	enable_hyprland = false,
 	custom_colors = nil,
 	virtual_symbol = "■",
 	virtual_symbol_prefix = "",
@@ -117,6 +118,10 @@ function M.highlight_colors(min_row, max_row, active_buffer_id)
 		LS_COLORS = {
 			is_enabled = options.enable_ls_colors,
 			patterns = { color_patterns.ls_colors_regex },
+		},
+		HYPRLAND = {
+			is_enabled = options.enable_hyprland,
+			patterns = { color_patterns.hyprland_regex },
 		},
 	}
 

@@ -47,6 +47,11 @@ function M.get_color_value(color, row_offset, custom_colors, enable_short_hex)
 		return string.sub(color, 1, 7)
 	end
 
+	if patterns.is_hyprland_color(color) then
+		local hex = string.match(color, "rgba?%((%x+)%)")
+		return "#" .. string.upper(string.sub(hex, 1, 6))
+	end
+
 	if patterns.is_rgb_color(color) then
 		local rgb_table = M.get_rgb_values(color)
 		if #rgb_table >= 3 then
